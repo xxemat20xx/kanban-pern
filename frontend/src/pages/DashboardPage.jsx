@@ -45,7 +45,7 @@ const DashboardPage = () => {
             title: newTaskTitle,
             status: "todo",
             tagNames: ["Frontend"],
-            assignee_id: 1,
+            assignee_id: user.id,
         });
 
         setNewTaskTitle("");

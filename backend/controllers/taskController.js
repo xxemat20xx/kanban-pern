@@ -4,13 +4,34 @@ import { findOrCreateTag, attachTagToTask } from '../models/tagModel.js';
 
 export const getTasks = async (req, res) => {
     const { projectId } = req.params;
+    const userId = req.user.id;
+
     try {
+        // Check if user has access to this project
+        const accessCheck = await pool.query(
+            `
+      SELECT 1 FROM projects p
+      LEFT JOIN tasks t ON t.project_id = p.id
+      WHERE p.id = $1 AND (p.owner_id = $2 OR t.assignee_id = $2)
+      LIMIT 1
+      `,
+            [projectId, userId]
+        );
+
+        if (accessCheck.rows.length === 0) {
+            return res.status(403).json({ error: 'You do not have access to this project' });
+        }
+
+        // If authorized, fetch tasks
         const tasks = await getTasksByProject(projectId);
         res.json(tasks);
-    } catch (error) { res.status(500).json({ error: error.message }); }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 
 export const createTaskHandler = async (req, res) => {
+    console.log('🔹 Incoming:', { body: req.body, params: req.params });
     const { title, description, status, assignee_id, tagNames = [] } = req.body;
     const { projectId } = req.params;
     const client = await pool.connect();

@@ -5,6 +5,7 @@ const useBoardStore = create((set, get) => ({
     projects: [],
     tasks: [],
     selectedProjectId: null,
+
     fetchProjects: async () => {
         try {
             const res = await api.get('/projects');
@@ -50,6 +51,7 @@ const useBoardStore = create((set, get) => ({
             selectedProjectId: state.selectedProjectId === projectId ? null : state.selectedProjectId,
             tasks: state.selectedProjectId === projectId ? [] : state.tasks,
         }));
-    }
+    },
+    reset: () => set({ projects: [], tasks: [], selectedProjectId: null }),
 }));
 export default useBoardStore;

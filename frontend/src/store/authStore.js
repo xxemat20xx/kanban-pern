@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import api from '../api/axiosInstance';
+import useBoardStore from './boardStore';
 
 const useAuthStore = create((set) => ({
     user: null,
@@ -29,6 +30,7 @@ const useAuthStore = create((set) => ({
     logout: async () => {
         await api.post('/auth/logout');
         set({ user: null });
+        useBoardStore.getState().reset();
     },
     checkUser: async () => {
         try {
